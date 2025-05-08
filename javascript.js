@@ -15,9 +15,23 @@ let userInputString = "";
 let linkIteration = 0;
 let fizzNum = 1;
 let cursorInternal = false;
+let smallScreen = false;
+if (window.innerWidth < 700)
+    {
+        smallScreen = true;
+        linkIteration = 1;
+    }
 // add document.getElementbyID for all elements i use multiple times
 
 // mobile screens have spaces instead of tabs
+
+// if less than 700
+// ignore tabs
+// if character 229
+// go to 291
+// link iteration = 1
+// in tutorial, skip over some stuff in !linkiteration
+// disable title text entry
 
 // +- 2 px
 // stop cursor blinking
@@ -35,28 +49,33 @@ const linkData = [
     {
         parameter: "statementParam",
         function: "statementLink",
-        text: ' <span class="codeText">if(!strcmp(input, <span id="statementParam"></span>)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="link" id="statementLink"></span>'
+        text: ' <span class="codeText">if(!strcmp(input, <span id="statementParam"></span>)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="link" id="statementLink"></span>',
+        smallScreenText: '<span class="codeText">if(!strcmp(input, <span id="statementParam"></span>)){<br></span><span class="link" id="statementLink"></span>'
     },
     {
         parameter: "educationParam",
         function: "educationLink",
-        text: '<span class="codeText"><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else if(!strcmp(input, <span id="educationParam"></span>)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="link" id="educationLink"></span>'
+        text: '<span class="codeText"><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else if(!strcmp(input, <span id="educationParam"></span>)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="link" id="educationLink"></span>',
+        smallScreenText: '<span class="codeText"><br><br>} else if(!strcmp(input, <span id="educationParam"></span>)){<br></span><span class="link" id="educationLink"></span>'
     },
     {
         parameter: "workParam",
         function: "workLink",
-        text: '<span class="codeText"><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else if(!strcmp(input, <span id="workParam"></span>)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="link" id="workLink"></span>'
+        text: '<span class="codeText"><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else if(!strcmp(input, <span id="workParam"></span>)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="link" id="workLink"></span>',
+        smallScreenText: '<span class="codeText"><br><br>} else if(!strcmp(input, <span id="workParam"></span>)){<br></span><span class="link" id="workLink"></span>'
 
     },
     {
         parameter: "contactParam",
         function: "contactLink",
-        text: '<span class="codeText"><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else if(!strcmp(input, <span id="contactParam"></span>)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="link" id="contactLink"></span>'
+        text: '<span class="codeText"><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else if(!strcmp(input, <span id="contactParam"></span>)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="link" id="contactLink"></span>',
+        smallScreenText: '<span class="codeText"><br><br>} else if(!strcmp(input, <span id="contactParam"></span>)){<br></span><span class="link" id="contactLink"></span>'
     },
     {
         parameter: "downloadParam",
         function: "downloadLink",
-        text: '<span class="codeText"><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else if(!strcmp(input, <span id="downloadParam"></span>)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><a class="link" id="downloadLink" href="lawrence_charlesworth_cv.docx" download></a>'
+        text: '<span class="codeText"><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else if(!strcmp(input, <span id="downloadParam"></span>)){<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><a class="link" id="downloadLink" href="lawrence_charlesworth_cv.docx" download></a>',
+        smallScreenText: '<span class="codeText"><br><br>} else if(!strcmp(input, <span id="downloadParam"></span>)){<br></span><a class="link" id="downloadLink" href="lawrence_charlesworth_cv.docx" download></a>'
 
     },
 ]
@@ -99,6 +118,7 @@ function outputCode (time)
                 }
             if(codeText.length === 5)
                 {
+                    if(smallScreen) codeDiv.innerHTML = "";
                     lastCharacter += 800;
                     codeText.pop();
                     currentCharacter -= 1;
@@ -108,6 +128,13 @@ function outputCode (time)
             if(codeText.length === 22)
                 {
                     lastCharacter += 300;
+                    if(smallScreen)
+                        {
+                            codeText = compile[1].split("");
+                            currentCharacter = 5;
+                            animationID = window.requestAnimationFrame(outputCode);
+                            return
+                        }
                     codeText.pop();
                     currentCharacter -= 1;
                     animationID = window.requestAnimationFrame(outputCode);
@@ -188,8 +215,15 @@ function outputCode (time)
                 {
                     document.getElementById("cursor").remove();
                     document.getElementById("code-container").insertAdjacentHTML('beforeend', '<span id="cursor"></span>');
-                    codeDiv.insertAdjacentHTML('beforeend', linkData[linkIteration].text);
-                    lastCharacter += 120;
+                    if(smallScreen)
+                        {
+                            codeDiv.insertAdjacentHTML('beforeend', linkData[linkIteration].smallScreenText);
+                        }
+                    else
+                        {
+                            codeDiv.insertAdjacentHTML('beforeend', linkData[linkIteration].text);
+                            lastCharacter += 120;
+                        }
                     currentCharacter++;
                     
                 }
@@ -233,7 +267,14 @@ function outputCode (time)
                 {
                     if (codeText[currentCharacter] === "~")
                         {
-                            string += "&nbsp;&nbsp;&nbsp;&nbsp;";
+                            if(!smallScreen) 
+                                {
+                                    string += "&nbsp;&nbsp;&nbsp;&nbsp;";
+                                }
+                            else if(currentCharacter == 229)
+                                {
+                                    currentCharacter = 290;
+                                }
                             currentCharacter++;
                         }
                     else if (codeText[currentCharacter] === "£")
@@ -275,9 +316,8 @@ function outputCode (time)
         }
     if(currentCharacter === 87 || currentCharacter === 143 || currentCharacter === 467 || currentCharacter === 482 || currentCharacter === 485 || currentCharacter === 486)
         {
+            if(smallScreen) return
             lastCharacter += 100;
-            console.log(currentCharacter);
-            console.log(codeText[currentCharacter]);
         }
     
 }
@@ -285,6 +325,13 @@ function outputCode (time)
 
 function selectCvSection (cvSection)
 {
+    if(firstTime && smallScreen)
+        {
+            window.addEventListener('keydown', userInput);
+            firstTime = false;
+            tutorial();
+            return
+        }
     if(document.getElementById("fizzbuzz")) document.getElementById("fizzbuzz").remove();
     document.getElementById("output").style.height = "0";
     window.clearTimeout(animationID);
@@ -373,7 +420,7 @@ function userInput (event)
                     case "title":
                     case "lawrencecharlesworth":
                     case "lawrencecharlesworthcv":
-                        selectCvSection("title");
+                        if(!smallScreen) selectCvSection("title");
                         break;
 
                     case "personalstatement":
@@ -447,7 +494,6 @@ function userInput (event)
             window.clearTimeout(animationID);
             animationID = setTimeout(() => {document.getElementById("cursor").style.animation = "blink 1.2s step-end infinite";}, 300);
             return
-            // problem with blinking cursor is here
         }
     if(event.key.length > 1) return;
     document.getElementById("cursor").style.animation = "blink 0s step-end 1";
@@ -486,11 +532,17 @@ function tutorial ()
         {
             document.getElementById("comment").classList.remove("glow");
             document.getElementById("comment").classList.add("dim");
+            if(smallScreen)
+                {
+                    linkIteration++;
+                    tutorial();
+                    return
+                }
             document.getElementById(linkData[linkIteration].function).classList.remove("dim");
             document.getElementById(linkData[linkIteration].function).classList.add("glow");
             document.getElementById(linkData[linkIteration].function).addEventListener("click", clickLink);
+            window.setTimeout(tutorial, 700);         
             linkIteration++;
-            window.setTimeout(tutorial, 700);
             return
         }
     else
@@ -501,15 +553,28 @@ function tutorial ()
                         element.classList.remove("dim");
                         element.classList.add("glow");
                     });
+                    if(smallScreen) document.getElementById("cursor").style.animation = "blink 1.2s step-end infinite";
                     return;
                 }
-            document.getElementById(linkData[linkIteration - 1].function).classList.remove("glow");
-            document.getElementById(linkData[linkIteration - 1].function).classList.add("dim");
-            document.getElementById(linkData[linkIteration].function).classList.remove("dim");
-            document.getElementById(linkData[linkIteration].function).classList.add("glow");
-            if(linkIteration != 5) document.getElementById(linkData[linkIteration].function).addEventListener("click", clickLink);
-            linkIteration++;
-            window.setTimeout(tutorial, 700);
+            if(smallScreen && linkIteration === 1) 
+                {
+                    document.getElementById(linkData[linkIteration].function).classList.remove("dim");
+                    document.getElementById(linkData[linkIteration].function).classList.add("glow");
+                    document.getElementById(linkData[linkIteration].function).addEventListener("click", clickLink);
+                    linkIteration++;
+                    window.setTimeout(tutorial, 700);
+                }
+            else
+                {
+                    document.getElementById(linkData[linkIteration - 1].function).classList.remove("glow");
+                    document.getElementById(linkData[linkIteration - 1].function).classList.add("dim");
+                    document.getElementById(linkData[linkIteration].function).classList.remove("dim");
+                    document.getElementById(linkData[linkIteration].function).classList.add("glow");
+                    if(linkIteration != 5) document.getElementById(linkData[linkIteration].function).addEventListener("click", clickLink);
+                    linkIteration++;
+                    window.setTimeout(tutorial, 700);
+                }
+
         }
     
 
