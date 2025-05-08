@@ -21,21 +21,8 @@ if (window.innerWidth < 700)
         smallScreen = true;
         linkIteration = 1;
     }
-// add document.getElementbyID for all elements i use multiple times
 
-// mobile screens have spaces instead of tabs
-
-// if less than 700
-// ignore tabs
-// if character 229
-// go to 291
-// link iteration = 1
-// in tutorial, skip over some stuff in !linkiteration
-// disable title text entry
-
-// +- 2 px
-// stop cursor blinking
-
+// initial cursor 'blink blink' followed by writing code
 
 window.addEventListener('animationend', outputCode, {once:true});
 
@@ -80,6 +67,11 @@ const linkData = [
     },
 ]
 
+// £ = line break
+// ~ = tab
+// $ = put text in a span
+// ¬ = add prompt at end
+
 function outputCode (time)
 {
     if(!lastCharacter) 
@@ -96,6 +88,7 @@ function outputCode (time)
         {
             if(codeText.length === 4)
                 {
+                    // output code finished completely
                     window.cancelAnimationFrame(animationID);
                     codeDiv.remove();
                     document.getElementById("cursor").remove();
@@ -118,6 +111,7 @@ function outputCode (time)
                 }
             if(codeText.length === 5)
                 {
+                    //writing "title" finished. wait 800ms before printing out title. codeText 1 shorter
                     if(smallScreen) codeDiv.innerHTML = "";
                     lastCharacter += 800;
                     codeText.pop();
@@ -127,6 +121,7 @@ function outputCode (time)
                 }
             if(codeText.length === 22)
                 {
+                    // code compiling finished. wait 300ms before deleting. make codeText 1 shorter.
                     lastCharacter += 300;
                     if(smallScreen)
                         {
@@ -142,6 +137,7 @@ function outputCode (time)
                 }
             if(codeText.length === 21)
                 {
+                    // first time, delete text, wait 300ms, codeText 1 shorter. second time, codeText = "title", wait 300ms
                     if(codeDiv.innerHTML === "")
                         {
                             currentCharacter = 0;
@@ -160,6 +156,7 @@ function outputCode (time)
                 }
             else
                 {
+                    // initial code writing finished
                     lastCharacter += 1000;
                     currentCharacter = 0;
                     const span = document.createElement("span");
@@ -306,10 +303,10 @@ function outputCode (time)
             currentCharacter++;
         }
 
-    if(document.getElementById("background").scrollHeight > document.getElementById("background").clientHeight)
-        {
-            document.getElementById("background").scrollTop = document.getElementById("background").scrollHeight - document.getElementById("background").clientHeight;
-        }
+    autoScroll();
+
+    // add pauses for new line and single curly braces. too fast otherwise, feels off. 
+
     if(codeText[currentCharacter + 1] === "£")
         {
             lastCharacter += 10;
@@ -322,6 +319,7 @@ function outputCode (time)
     
 }
 
+// before printing out cv section, make old section display: none and new section display: block. sectionHeight is height of new section
 
 function selectCvSection (cvSection)
 {
@@ -367,6 +365,8 @@ function selectCvSection (cvSection)
     animationID = window.requestAnimationFrame(outputCv);
 }
 
+// print out cv section
+
 function outputCv (time)
 {
     animationID = window.requestAnimationFrame(outputCv);
@@ -395,12 +395,11 @@ function outputCv (time)
             return
         }
     document.getElementById("output").style.height = parseFloat(document.getElementById("output").style.height) + 1.2 + "em";
-    if(document.getElementById("background").scrollHeight > document.getElementById("background").clientHeight)
-        {
-            document.getElementById("background").scrollTop = document.getElementById("background").scrollHeight - document.getElementById("background").clientHeight;
-        }
 
+    autoScroll();
 }
+
+// write text with keyboard
 
 function userInput (event)
 {
@@ -501,11 +500,12 @@ function userInput (event)
     animationID = setTimeout(() => {document.getElementById("cursor").style.animation = "blink 1.2s step-end infinite";}, 500);
     document.getElementById("userEntry").insertAdjacentHTML('beforeend', event.key);
     userInputString += event.key;
-    if(document.getElementById("background").scrollHeight > document.getElementById("background").clientHeight)
-        {
-            document.getElementById("background").scrollTop = document.getElementById("background").scrollHeight - document.getElementById("background").clientHeight;
-        }
+
+    autoScroll();
+
 }
+
+// light up clickable elements
 
 function tutorial ()
 {
@@ -540,7 +540,7 @@ function tutorial ()
                 }
             document.getElementById(linkData[linkIteration].function).classList.remove("dim");
             document.getElementById(linkData[linkIteration].function).classList.add("glow");
-            document.getElementById(linkData[linkIteration].function).addEventListener("click", clickLink);
+            document.getElementById(linkData[linkIteration].function).addEventListener("click", (event) => selectCvSection(event.target.id.slice(0,-4)));
             window.setTimeout(tutorial, 700);         
             linkIteration++;
             return
@@ -560,7 +560,7 @@ function tutorial ()
                 {
                     document.getElementById(linkData[linkIteration].function).classList.remove("dim");
                     document.getElementById(linkData[linkIteration].function).classList.add("glow");
-                    document.getElementById(linkData[linkIteration].function).addEventListener("click", clickLink);
+                    document.getElementById(linkData[linkIteration].function).addEventListener("click", (event) => selectCvSection(event.target.id.slice(0,-4)));
                     linkIteration++;
                     window.setTimeout(tutorial, 700);
                 }
@@ -570,20 +570,25 @@ function tutorial ()
                     document.getElementById(linkData[linkIteration - 1].function).classList.add("dim");
                     document.getElementById(linkData[linkIteration].function).classList.remove("dim");
                     document.getElementById(linkData[linkIteration].function).classList.add("glow");
-                    if(linkIteration != 5) document.getElementById(linkData[linkIteration].function).addEventListener("click", clickLink);
+                    if(linkIteration != 5) 
+                        {
+                            document.getElementById(linkData[linkIteration].function).addEventListener("click", (event) => selectCvSection(event.target.id.slice(0,-4)));
+                        }
                     linkIteration++;
                     window.setTimeout(tutorial, 700);
                 }
-
         }
-    
-
 }
 
-function clickLink (event)
+function autoScroll ()
 {
-    selectCvSection(event.target.id.slice(0,-4))
-}  
+    if(document.getElementById("background").scrollHeight > document.getElementById("background").clientHeight)
+        {
+            document.getElementById("background").scrollTop = document.getElementById("background").scrollHeight - document.getElementById("background").clientHeight;
+        }
+}
+
+// easter eggs
 
 function fizzBuzz ()
 {
@@ -611,10 +616,7 @@ function fizzBuzz ()
             document.getElementById("fizzbuzz").insertAdjacentHTML('beforeend', fizzNum + "<br>");
         }
 
-    if(document.getElementById("background").scrollHeight > document.getElementById("background").clientHeight)
-        {
-            document.getElementById("background").scrollTop = document.getElementById("background").scrollHeight - document.getElementById("background").clientHeight;
-        }
+    autoScroll();
 
     fizzNum++;
 }
@@ -628,40 +630,3 @@ function rootRemove ()
     document.getElementById("background").append(spanCursor);
 }
 
-
-/*
-#include <stdio.h>
-#include <string.h>
-#include "cvReader.h"
-int main()
-{
-    FILE *cv = fopen("cv.txt", "r");   
-    while(1)
-    {
-        char* input;
-        scanf(%s, input);
-
-        // click function below for relevant section
-        if(!strcmp(input,  "title")){
-            title(cv);
-
-        } else if(!strcmp(input,  "statement")){
-            personalStatement(cv);
-
-        } else if(!strcmp(input,  "education")){
-            qualifications(cv);
-
-        } else if(!strcmp(input,  "work")){
-            workExperience(cv);
-
-        } else if(!strcmp(input,  "contact")){
-            contact(cv);
-
-        } else if(!strcmp(input,  "download")){
-            download(cv);
-        }
-    }
-    return 0;
-}
-
-*/
