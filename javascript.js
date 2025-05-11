@@ -253,7 +253,7 @@ function outputCode (time)
                     document.getElementById("code-container").insertAdjacentHTML('beforeend', '<span id="cursor"></span>');
                     currentCharacter++;
                     addSpan = false;
-                    linkIteration = -1;
+                    linkIteration = 0;
                 }
         }
     else if(codeText[currentCharacter] === "£")
@@ -327,7 +327,7 @@ function selectCvSection (cvSection)
         {
             window.addEventListener('keydown', userInput);
             firstTime = false;
-            tutorial();
+            tutorialSetUp();
             return
         }
     if(document.getElementById("fizzbuzz")) document.getElementById("fizzbuzz").remove();
@@ -389,8 +389,7 @@ function outputCv (time)
             if(firstTime) 
                 {
                     window.addEventListener('keydown', userInput);
-                    firstTime = false;
-                    setTimeout(tutorial, 800);
+                    setTimeout(tutorialSetUp, 800);
                 }
             return
         }
@@ -505,30 +504,13 @@ function userInput (event)
 
 }
 
+
 // light up clickable elements
 
 function tutorial ()
 {
-    if(linkIteration === -1)
-        {
-            document.querySelectorAll("#output, #inputContainer, .codeText, .link, #comment").forEach(element => {
-                element.classList.add("dim");
-            });
-            if(document.getElementById("background").scrollTop > 335)
-                {
-                    document.getElementById("background").style.scrollBehavior = "smooth";
-                    document.getElementById("background").scrollTo({top:325,behaviour:"smooth"});
-                    document.getElementById("background").style.scrollBehavior = "";
-                }
-            window.setTimeout(() => {
-                document.getElementById("comment").classList.remove("dim");
-                document.getElementById("comment").classList.add("glow");
-                linkIteration++;
-                window.setTimeout(tutorial, 2300);
-            }, 300);
-            return
-        }
-    else if(!linkIteration)
+   
+    if(!linkIteration)
         {
             document.getElementById("comment").classList.remove("glow");
             document.getElementById("comment").classList.add("dim");
@@ -580,6 +562,58 @@ function tutorial ()
         }
 }
 
+function tutorialSetUp()
+{
+    document.querySelectorAll("#output, #inputContainer, .codeText, .link, #comment").forEach(element => {
+        element.classList.add("dim");
+    });
+    if(document.getElementById("background").scrollTop > 335)
+    {
+        window.requestAnimationFrame(tutorialScroll);
+    }
+    else
+    {
+        firstTime = false;
+        window.setTimeout(() => {
+            document.getElementById("comment").classList.remove("dim");
+            document.getElementById("comment").classList.add("glow");
+            window.setTimeout(tutorial, 2300);
+        }, 300);
+        
+    }
+}
+
+function tutorialScroll (time)
+{
+    animationID = window.requestAnimationFrame(tutorialScroll);
+    if(firstTime) 
+        {
+            lastPrint = time + 250;
+            firstTime = false;
+        }
+
+    if(time - lastPrint < 350)
+        {
+            return
+        }
+    lastPrint = time;
+    if(document.getElementById("background").scrollTop - 44 <= 310)
+        {
+
+            window.cancelAnimationFrame(animationID);
+            document.getElementById("background").scrollTop = 310;
+            window.setTimeout(() => {
+                document.getElementById("comment").classList.remove("dim");
+                document.getElementById("comment").classList.add("glow");
+                window.setTimeout(tutorial, 2300);
+            }, 600);
+            return
+        }
+        document.getElementById("background").scrollTop -= 44;
+
+}
+
+
 function autoScroll ()
 {
     if(document.getElementById("background").scrollHeight > document.getElementById("background").clientHeight)
@@ -587,6 +621,7 @@ function autoScroll ()
             document.getElementById("background").scrollTop = document.getElementById("background").scrollHeight - document.getElementById("background").clientHeight;
         }
 }
+
 
 // easter eggs
 
